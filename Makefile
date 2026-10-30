@@ -20,6 +20,7 @@ ARCH := -march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE
 
 CFLAGS := -g -Wall -Wextra -O2 -ffunction-sections -fdata-sections $(ARCH)
 CFLAGS += -D__SWITCH__
+CPPFLAGS := -D__SWITCH__
 CXXFLAGS := $(CFLAGS) -fno-rtti -fno-exceptions
 ASFLAGS := -g $(ARCH)
 

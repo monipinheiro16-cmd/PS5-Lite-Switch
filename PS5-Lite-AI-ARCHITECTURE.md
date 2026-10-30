@@ -1,68 +1,24 @@
-#include "ps5lite_ai.h"
+# PS5 Lite AI — protótipo inicial
 
-#define PS5AI_SLOW_FRAME_NS 33333333ULL
-#define PS5AI_TRIGGER_COUNT 3
-#define PS5AI_RECOVERY_COUNT 120
+## Arquivos
+- `source/main.c`: interface de console, gerenciamento de arquivos e integração com os módulos de IA e otimização.
+- `source/ps5lite_ai.h`: tipos e funções públicas da IA do aplicativo.
+- `source/ps5lite_ai.c`: média suavizada e detecção de ciclos lentos.
+- `source/ps5lite_optimizer.h`: tipos e API do perfil de otimização.
+- `source/ps5lite_optimizer.c`: descrições e rotação dos perfis de operação.
+- `Makefile`: regras de compilação para o devkitPro/libnx.
 
-static Ps5AiMode g_mode;
-static unsigned int g_slow_frames;
-static unsigned int g_recovery_frames;
-static unsigned int g_samples;
-static double g_avg_ms;
+## Teste
+1. Compile em um ambiente com devkitPro e libnx.
+2. Execute o NRO no Nintendo Switch desbloqueado.
+3. Pressione A para verificar a compatibilidade do arquivo selecionado.
+4. Pressione X para importar um arquivo para a pasta `imports`.
+5. Pressione L/R para alternar o perfil de otimização.
+6. Pressione Y para executar um NRO reconhecido.
+7. Pressione + para sair.
 
-void ps5ai_init(void) {
-    g_mode = PS5AI_MODE_NORMAL;
-    g_slow_frames = 0;
-    g_recovery_frames = 0;
-    g_samples = 0;
-    g_avg_ms = 0.0;
-}
+## Limites
+Este protótipo usa heurísticas simples, não um modelo de machine learning treinado. Mede apenas o ciclo deste aplicativo e, por design, os perfis de otimização são informativos e não alteram hardware, clocks, GPU ou ventoinha. A aplicação serve como base para diagnóstico e demonstração de comportamento.
 
-const char *ps5ai_mode_name(Ps5AiMode mode) {
-    switch (mode) {
-        case PS5AI_MODE_LIGHT:
-            return "LEVE";
-        case PS5AI_MODE_NORMAL:
-        default:
-            return "NORMAL";
-    }
-}
-
-/* Mede apenas o ciclo deste aplicativo; não otimiza outros jogos. */
-Ps5AiStatus ps5ai_update(uint64_t elapsed_ns) {
-    Ps5AiStatus s = {0};
-    const double ms = (double)elapsed_ns / 1000000.0;
-
-    s.frame_ms = ms;
-    s.fps = ms > 0.0 ? 1000.0 / ms : 0.0;
-
-    if (g_samples == 0) g_avg_ms = ms;
-    else g_avg_ms = (g_avg_ms * 0.9) + (ms * 0.1);
-    g_samples++;
-
-    if (elapsed_ns > PS5AI_SLOW_FRAME_NS) {
-        g_slow_frames++;
-        g_recovery_frames = 0;
-    } else {
-        g_slow_frames = 0;
-        if (g_mode != PS5AI_MODE_NORMAL && ++g_recovery_frames >= PS5AI_RECOVERY_COUNT) {
-            g_mode = PS5AI_MODE_NORMAL;
-            g_recovery_frames = 0;
-        }
-    }
-
-    if (g_slow_frames >= PS5AI_TRIGGER_COUNT) {
-        g_mode = PS5AI_MODE_LIGHT;
-        g_recovery_frames = 0;
-    }
-
-    s.average_frame_ms = g_avg_ms;
-    s.slow_frames = g_slow_frames;
-    s.samples = g_samples;
-    s.mode = g_mode;
-    s.stall_detected = g_slow_frames >= PS5AI_TRIGGER_COUNT;
-    if (s.stall_detected) s.recommendation = "Ciclos lentos detectados neste aplicativo.";
-    else if (g_mode == PS5AI_MODE_LIGHT) s.recommendation = "Modo leve ativo; monitorando recuperacao.";
-    else s.recommendation = "Desempenho dentro do limite monitorado.";
-    return s;
-}
+## Estado do projeto
+O repositório foi ajustado para manter a estrutura de compilação consistente, incorporar os módulos de IA e otimização à interface principal e reduzir erros de configuração e integração.

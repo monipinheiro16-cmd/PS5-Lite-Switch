@@ -1,4 +1,3 @@
-
 #include <switch.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,6 +6,9 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+
+#include "ps5lite_ai.h"
+#include "ps5lite_optimizer.h"
 
 #define ROOT_DIR   "sdmc:/switch/switchps5lite"
 #define GAMES_DIR  "sdmc:/switch/switchps5lite/games"
@@ -27,6 +29,8 @@ static int file_count = 0;
 static int selected = 0;
 static char message[256] = "A: verificar | X: importar | Y: executar NRO";
 static char current_dir[PATH_LEN] = GAMES_DIR;
+static Ps5AiStatus ai_status = {0};
+static Ps5OptProfile selected_profile = PS5OPT_BALANCED;
 
 static int ends_with_ci(const char *name, const char *ext) {
     size_t n = strlen(name);
@@ -231,10 +235,6 @@ static void execute_selected(void) {
         return;
     }
 
-    /*
-     * Encaminha um homebrew NRO para o ambiente do Switch.
-     * Isso nao garante que o arquivo seja valido ou compativel.
-     */
     envSetNextLoad(path, NULL);
     snprintf(message, sizeof(message), "Abrindo homebrew NRO...");
     consoleUpdate(NULL);
@@ -249,6 +249,9 @@ int main(int argc, char *argv[]) {
     mkdir(GAMES_DIR, 0777);
     mkdir(IMPORT_DIR, 0777);
 
+    ps5ai_init();
+    selected_profile = PS5OPT_BALANCED;
+    ai_status = ps5ai_update(16666667ULL);
     load_files();
 
     while (appletMainLoop()) {
@@ -265,6 +268,12 @@ int main(int argc, char *argv[]) {
         if (file_count > 0 && (down & KEY_UP))
             selected = (selected - 1 + file_count) % file_count;
 
+        if (down & (KEY_L | KEY_R)) {
+            selected_profile = ps5opt_next_profile(selected_profile);
+            snprintf(message, sizeof(message),
+                     "Perfil %s ativado.", ps5opt_profile_name(selected_profile));
+        }
+
         if (down & KEY_A)
             verify_selected();
 
@@ -277,6 +286,8 @@ int main(int argc, char *argv[]) {
         if (down & KEY_B)
             load_files();
 
+        ai_status = ps5ai_update(16666667ULL);
+
         consoleClear();
 
         printf("========================================\n");
@@ -284,6 +295,11 @@ int main(int argc, char *argv[]) {
         printf("========================================\n\n");
 
         printf("Pasta: %s\n\n", current_dir);
+        printf("AI: %s | Perfil: %s\n",
+               ps5ai_mode_name(ai_status.mode),
+               ps5opt_profile_name(selected_profile));
+        printf("Otimizacao: %s\n\n",
+               ps5opt_profile_description(selected_profile));
 
         if (file_count == 0) {
             printf("Nenhum arquivo encontrado.\n");
@@ -307,7 +323,7 @@ int main(int argc, char *argv[]) {
         printf("A: verificar compatibilidade\n");
         printf("X: importar arquivo\n");
         printf("Y: executar NRO reconhecido\n");
-        printf("B: atualizar lista | +: sair\n");
+        printf("L/R: trocar perfil | B: atualizar lista | +: sair\n");
 
         consoleUpdate(NULL);
     }
