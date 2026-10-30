@@ -1,3 +1,4 @@
+
 .SUFFIXES:
 
 ifeq ($(strip $(DEVKITPRO)),)
@@ -55,7 +56,8 @@ export INCLUDE := $(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 
 export LIBPATHS := $(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 
-export NROFLAGS += --nacp=$(CURDIR)/$(TARGET).nacp
+# CORRECAO: caminho absoluto do arquivo NACP
+export NROFLAGS += --nacp=$(OUTPUT).nacp
 
 .PHONY: all clean $(BUILD)
 
@@ -80,6 +82,7 @@ $(OUTPUT).nro: $(OUTPUT).elf $(OUTPUT).nacp
 
 $(OUTPUT).elf: $(OFILES)
 
+# Gerar o arquivo de informacoes antes do NRO
 $(OUTPUT).nacp:
 	@nacptool --create "$@" \
 		--title "$(APP_TITLE)" \
