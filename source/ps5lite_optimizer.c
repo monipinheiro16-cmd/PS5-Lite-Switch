@@ -1,35 +1,14 @@
-#include "ps5lite_optimizer.h"
+#ifndef PS5LITE_OPTIMIZER_H
+#define PS5LITE_OPTIMIZER_H
 
-const char *ps5opt_profile_name(Ps5OptProfile profile) {
-    switch (profile) {
-        case PS5OPT_PERFORMANCE:
-            return "DESEMPENHO (informativo)";
-        case PS5OPT_COOL:
-            return "FOCO EM TEMPERATURA (informativo)";
-        case PS5OPT_BALANCED:
-        default:
-            return "EQUILIBRADO (informativo)";
-    }
-}
+typedef enum {
+    PS5OPT_BALANCED = 0,
+    PS5OPT_PERFORMANCE = 1,
+    PS5OPT_COOL = 2
+} Ps5OptProfile;
 
-const char *ps5opt_profile_description(Ps5OptProfile profile) {
-    switch (profile) {
-        case PS5OPT_PERFORMANCE:
-            return "Nao altera clocks nem FPS de outros jogos.";
-        case PS5OPT_COOL:
-            return "Nao controla ventoinha ou temperatura.";
-        case PS5OPT_BALANCED:
-        default:
-            return "Perfil selecionado; sem alteracoes no sistema.";
-    }
-}
+const char *ps5opt_profile_name(Ps5OptProfile profile);
+const char *ps5opt_profile_description(Ps5OptProfile profile);
+Ps5OptProfile ps5opt_next_profile(Ps5OptProfile profile);
 
-Ps5OptProfile ps5opt_next_profile(Ps5OptProfile profile) {
-    if (profile == PS5OPT_BALANCED)
-        return PS5OPT_PERFORMANCE;
-
-    if (profile == PS5OPT_PERFORMANCE)
-        return PS5OPT_COOL;
-
-    return PS5OPT_BALANCED;
-}
+#endif

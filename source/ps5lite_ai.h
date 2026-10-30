@@ -1,27 +1,25 @@
-#ifndef PS5LITE_AI_H
-#define PS5LITE_AI_H
+# PS5 Lite AI — protótipo inicial
 
-#include <stdbool.h>
-#include <stdint.h>
+## Arquivos
+- `source/main.c`: interface de console, gerenciamento de arquivos e integração com os módulos de IA e otimização.
+- `source/ps5lite_ai.h`: tipos e funções públicas da IA do aplicativo.
+- `source/ps5lite_ai.c`: média suavizada e detecção de ciclos lentos.
+- `source/ps5lite_optimizer.h`: tipos e API do perfil de otimização.
+- `source/ps5lite_optimizer.c`: descrições e rotação dos perfis de operação.
+- `Makefile`: regras de compilação para o devkitPro/libnx.
 
-typedef enum {
-    PS5AI_MODE_NORMAL = 0,
-    PS5AI_MODE_LIGHT = 1
-} Ps5AiMode;
+## Teste
+1. Compile em um ambiente com devkitPro e libnx.
+2. Execute o NRO no Nintendo Switch desbloqueado.
+3. Pressione A para verificar a compatibilidade do arquivo selecionado.
+4. Pressione X para importar um arquivo para a pasta `imports`.
+5. Pressione L/R para alternar o perfil de otimização.
+6. Pressione Y para executar um NRO reconhecido.
+7. Pressione + para sair.
 
-typedef struct {
-    double frame_ms;
-    double fps;
-    double average_frame_ms;
-    unsigned int slow_frames;
-    unsigned int samples;
-    Ps5AiMode mode;
-    bool stall_detected;
-    const char *recommendation;
-} Ps5AiStatus;
+## Limites
+Este protótipo usa heurísticas simples, não um modelo de machine learning treinado. Mede apenas o ciclo deste aplicativo e, por design, os perfis de otimização são informativos e não alteram hardware, clocks, GPU ou ventoinha. A aplicação serve como base para diagnóstico e demonstração de comportamento.
 
-void ps5ai_init(void);
-Ps5AiStatus ps5ai_update(uint64_t elapsed_ns);
-const char *ps5ai_mode_name(Ps5AiMode mode);
+## Estado do projeto
+O repositório foi ajustado para manter a estrutura de compilação consistente, incorporar os módulos de IA e otimização à interface principal e reduzir erros de configuração e integração.
 
-#endif

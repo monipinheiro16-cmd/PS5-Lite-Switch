@@ -1,14 +1,27 @@
-#ifndef PS5LITE_OPTIMIZER_H
-#define PS5LITE_OPTIMIZER_H
+#ifndef PS5LITE_AI_H
+#define PS5LITE_AI_H
+
+#include <stdbool.h>
+#include <stdint.h>
 
 typedef enum {
-    PS5OPT_BALANCED = 0,
-    PS5OPT_PERFORMANCE = 1,
-    PS5OPT_COOL = 2
-} Ps5OptProfile;
+    PS5AI_MODE_NORMAL = 0,
+    PS5AI_MODE_LIGHT = 1
+} Ps5AiMode;
 
-const char *ps5opt_profile_name(Ps5OptProfile profile);
-const char *ps5opt_profile_description(Ps5OptProfile profile);
-Ps5OptProfile ps5opt_next_profile(Ps5OptProfile profile);
+typedef struct {
+    double frame_ms;
+    double fps;
+    double average_frame_ms;
+    unsigned int slow_frames;
+    unsigned int samples;
+    Ps5AiMode mode;
+    bool stall_detected;
+    const char *recommendation;
+} Ps5AiStatus;
+
+void ps5ai_init(void);
+Ps5AiStatus ps5ai_update(uint64_t elapsed_ns);
+const char *ps5ai_mode_name(Ps5AiMode mode);
 
 #endif

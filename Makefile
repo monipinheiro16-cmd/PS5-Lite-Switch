@@ -1,8 +1,7 @@
-
 .SUFFIXES:
 
 ifeq ($(strip $(DEVKITPRO)),)
-$(error "DEVKITPRO não está definido")
+$(error "DEVKITPRO nao est\xC3\xA1 definido. Configure o devkitPRO e rode: export DEVKITPRO=/opt/devkitpro")
 endif
 
 include $(DEVKITPRO)/libnx/switch_rules
@@ -11,7 +10,7 @@ TARGET := switchps5lite
 BUILD := build
 SOURCES := source
 DATA :=
-INCLUDES :=
+INCLUDES := source
 
 APP_TITLE := PS5 Lite Switch
 APP_AUTHOR := Homebrew Project
@@ -19,7 +18,7 @@ APP_VERSION := 1.0.0
 
 ARCH := -march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE
 
-CFLAGS := -g -Wall -O2 -ffunction-sections -fdata-sections $(ARCH)
+CFLAGS := -g -Wall -Wextra -O2 -ffunction-sections -fdata-sections $(ARCH)
 CFLAGS += -D__SWITCH__
 CXXFLAGS := $(CFLAGS) -fno-rtti -fno-exceptions
 ASFLAGS := -g $(ARCH)
@@ -43,9 +42,9 @@ SFILES := $(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
 BINFILES := $(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
 
 export OFILES := $(addsuffix .o,$(BINFILES)) \
-                 $(CPPFILES:.cpp=.o) \
-                 $(CFILES:.c=.o) \
-                 $(SFILES:.s=.o)
+                  $(CPPFILES:.cpp=.o) \
+                  $(CFILES:.c=.o) \
+                  $(SFILES:.s=.o)
 
 export INCLUDE := $(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
                   -I$(CURDIR)/$(BUILD)
