@@ -1,7 +1,7 @@
-# Nintendo Switch homebrew Makefile (devkitPro/libnx)
+
 TARGET      := ps5lite
 BUILD       := build
-SOURCES     := source
+SOURCES     := .
 DATA        :=
 INCLUDES    :=
 
