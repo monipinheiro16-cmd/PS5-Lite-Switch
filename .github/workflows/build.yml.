@@ -1,0 +1,32 @@
+
+name: Build PS5 Lite AI
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: devkitpro/devkita64:latest
+
+    steps:
+      - name: Baixar codigo
+        uses: actions/checkout@v4
+
+      - name: Preparar ambiente
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm switch-dev
+
+      - name: Compilar aplicativo
+        run: make
+
+      - name: Publicar arquivo NRO
+        uses: actions/upload-artifact@v4
+        with:
+          name: PS5-Lite-AI-NRO
+          path: ps5lite.nro
+          if-no-files-found: error
