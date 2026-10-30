@@ -4,24 +4,27 @@
 
 int main(int argc, char* argv[]) {
     consoleInit(NULL);
-    hidInitialize();
+
+    PadState pad;
+    padConfigureInput(1, HidNpadStyleSet_NpadStandard);
+    padInitializeDefault(&pad);
 
     ps5ai_init();
 
     uint64_t previous_tick = armGetSystemTick();
 
     while (appletMainLoop()) {
-        hidScanInput();
+        padUpdate(&pad);
 
-        u64 down = hidKeysDown(CONTROLLER_P1_AUTO);
+        u64 down = padGetButtonsDown(&pad);
 
-        if (down & KEY_PLUS)
+        if (down & HidNpadButton_Plus)
             break;
 
-        if (down & KEY_A)
+        if (down & HidNpadButton_A)
             svcSleepThread(50000000LL);
 
-        if (down & KEY_X) {
+        if (down & HidNpadButton_X) {
             ps5ai_init();
             previous_tick = armGetSystemTick();
         }
@@ -56,8 +59,6 @@ int main(int argc, char* argv[]) {
         consoleUpdate(NULL);
     }
 
-    hidExit();
     consoleExit(NULL);
-
     return 0;
 }
