@@ -16,11 +16,6 @@ jobs:
       - name: Baixar codigo
         uses: actions/checkout@v4
 
-      - name: Preparar ambiente
-        run: |
-          pacman -Syu --noconfirm
-          pacman -S --noconfirm switch-dev
-
       - name: Compilar aplicativo
         run: make
 
