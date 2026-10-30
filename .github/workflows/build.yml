@@ -1,5 +1,5 @@
 
-name: Build PS5 Lite AI
+name: Build PS5 Lite Switch
 
 on:
   push:
@@ -12,38 +12,37 @@ permissions:
 
 jobs:
   build:
-    name: Compilar homebrew Nintendo Switch
+    name: Build Nintendo Switch Homebrew
     runs-on: ubuntu-latest
 
     container:
       image: devkitpro/devkita64:latest
 
     steps:
-      - name: Baixar codigo
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Verificar ambiente
         run: |
-          echo "Verificando devkitPro..."
           echo "DEVKITPRO=$DEVKITPRO"
-          test -d "$DEVKITPRO/libnx"
+          test -f "$DEVKITPRO/libnx/switch_rules"
+          ls -la
+          ls -la source
+
+      - name: Diagnosticar Makefile
+        run: |
+          make -pn | head -n 100
 
       - name: Compilar aplicativo
         run: |
-          make clean || true
-          make -j$(nproc)
+          make -j2
 
-      - name: Verificar arquivo NRO
+      - name: Verificar NRO
         run: |
-          if [ ! -f switchps5lite.nro ]; then
-            echo "ERRO: switchps5lite.nro não foi gerado."
-            echo "Arquivos encontrados:"
-            find . -maxdepth 3 -type f
-            exit 1
-          fi
+          test -f switchps5lite.nro
           ls -lh switchps5lite.nro
 
-      - name: Publicar arquivo NRO
+      - name: Publicar NRO
         uses: actions/upload-artifact@v4
         with:
           name: PS5-Lite-Switch-NRO
