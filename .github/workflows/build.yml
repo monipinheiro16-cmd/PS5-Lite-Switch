@@ -1,1 +1,27 @@
 
+name: Build PS5 Lite Switch
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: devkitpro/devkita64:latest
+
+    steps:
+      - name: Baixar projeto
+        uses: actions/checkout@v4
+
+      - name: Compilar arquivo NRO
+        run: make
+
+      - name: Guardar arquivo compilado
+        uses: actions/upload-artifact@v4
+        with:
+          name: PS5-Lite-Switch-NRO
+          path: "*.nro"
+
