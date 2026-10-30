@@ -1,7 +1,6 @@
-.SUFFIXES:
 
 ifeq ($(strip $(DEVKITPRO)),)
-$(error "DEVKITPRO nao est\xC3\xA1 definido. Configure o devkitPRO e rode: export DEVKITPRO=/opt/devkitpro")
+$(error "DEVKITPRO nao esta definido. Configure o devkitPro.")
 endif
 
 include $(DEVKITPRO)/libnx/switch_rules
@@ -20,7 +19,6 @@ ARCH := -march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE
 
 CFLAGS := -g -Wall -Wextra -O2 -ffunction-sections -fdata-sections $(ARCH)
 CFLAGS += -D__SWITCH__
-CPPFLAGS := -D__SWITCH__
 CXXFLAGS := $(CFLAGS) -fno-rtti -fno-exceptions
 ASFLAGS := -g $(ARCH)
 
@@ -43,9 +41,9 @@ SFILES := $(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
 BINFILES := $(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
 
 export OFILES := $(addsuffix .o,$(BINFILES)) \
-                  $(CPPFILES:.cpp=.o) \
-                  $(CFILES:.c=.o) \
-                  $(SFILES:.s=.o)
+                 $(CPPFILES:.cpp=.o) \
+                 $(CFILES:.c=.o) \
+                 $(SFILES:.s=.o)
 
 export INCLUDE := $(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
                   -I$(CURDIR)/$(BUILD)
@@ -61,7 +59,6 @@ $(BUILD):
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
 clean:
-	@echo Limpando arquivos...
 	@rm -rf $(BUILD) $(TARGET).nro $(TARGET).elf
 
 else
