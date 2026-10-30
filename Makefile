@@ -1,7 +1,7 @@
 
 TARGET      := ps5lite
 BUILD       := build
-SOURCES := source.
+SOURCES := source
 DATA        :=
 INCLUDES    :=
 
