@@ -1,64 +1,80 @@
+
 #include <switch.h>
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include "pkg_reader.hpp"
+#include "emulator_core.hpp"
 
-// Estado da Inteligência Artificial de Otimização
-bool aiOptimizerActive = false;
-char statusText[128] = "EQUILIBRADO (Perfil Informativo)";
+int main() {
+    consoleInit(nullptr);
 
-int main(int argc, char **argv)
-{
-    // Inicializa o modo de consola de texto padrão no ecrã principal
-    consoleInit(NULL);
+    padConfigureInput(1, HidNpadStyleSet_NpadStandard);
 
-    // Configura o manuseamento de comandos (Joy-Con / Pro Controller)
-    padConfigureInput(1, HID_NINTENDO_PRO_CON_POWERED);
     PadState pad;
     padInitializeDefault(&pad);
 
-    printf("\x1b[1;1H====================================");
-    printf("\x1b[2;1H       PS5 Lite AI - Switch         ");
-    printf("\x1b[3;1H====================================");
-    printf("\x1b[5;1H Pressione [Y] para Alternar Otimizacao IA");
-    printf("\x1b[6;1H Pressione [+ ] para Sair");
-    printf("\x1b[7;1H------------------------------------");
+    PS5LiteCore emulator;
+    emulator.initialize();
 
-    // Loop principal da aplicação
-    while (appletMainLoop())
-    {
-        // Atualiza a leitura dos botões do comando
+    int selected = 0;
+    const char* menu[] = {
+        "Inspecionar arquivo PKG",
+        "Iniciar nucleo experimental",
+        "Informacoes do projeto",
+        "Sair"
+    };
+
+    bool running = true;
+
+    while (appletMainLoop() && running) {
         padUpdate(&pad);
-        u64 kDown = padGetButtonsDown(&pad);
+        u64 keys = padGetButtonsDown(&pad);
 
-        // Se pressionar o botão (+), encerra a aplicação
-        if (kDown & HidNpadButton_Plus) {
-            break;
-        }
+        if (keys & HidNpadButton_Down)
+            selected = (selected + 1) % 4;
 
-        // Se pressionar o botão (Y), alterna o estado da IA de Otimização
-        if (kDown & HidNpadButton_Y) {
-            aiOptimizerActive = !aiOptimizerActive;
+        if (keys & HidNpadButton_Up)
+            selected = (selected + 3) % 4;
 
-            if (aiOptimizerActive) {
-                snprintf(statusText, sizeof(statusText), "IA OTIMIZADORA ATIVA (Modo Dinamico)");
-            } else {
-                snprintf(statusText, sizeof(statusText), "EQUILIBRADO (Perfil Informativo)");
+        if (keys & HidNpadButton_A) {
+            switch (selected) {
+                case 0:
+                    break;
+
+                case 1:
+                    emulator.run();
+                    break;
+
+                case 2:
+                    break;
+
+                case 3:
+                    running = false;
+                    break;
             }
         }
 
-        // Atualiza as informações no ecrã
-        printf("\x1b[10;1H Status Atual: %s                ", statusText);
-        if (aiOptimizerActive) {
-            printf("\x1b[12;1H [!] Perfil de desempenho dinâmico em execucao.");
-        } else {
-            printf("\x1b[12;1H [i] Monitoramento padrao ativo.                ");
+        consoleClear();
+
+        printf("================================\n");
+        printf("       PS5-LITE-SWITCH\n");
+        printf("    NINTENDO ULTIMATE ENGINE\n");
+        printf("================================\n\n");
+
+        for (int i = 0; i < 4; i++) {
+            printf("%s %s\n",
+                selected == i ? ">" : " ",
+                menu[i]);
         }
 
-        // Renderiza o frame na consola do Switch
-        consoleUpdate(NULL);
+        printf("\nEstado: EXPERIMENTAL\n");
+        printf("Nucleo: %s\n", emulator.status().c_str());
+
+        printf("\nEste projeto ainda nao executa jogos PS5.\n");
+        printf("Use + para sair.\n");
+
+        consoleUpdate(nullptr);
     }
 
-    // Finaliza os serviços da consola antes de fechar
-    consoleExit(NULL);
+    consoleExit(nullptr);
     return 0;
 }
