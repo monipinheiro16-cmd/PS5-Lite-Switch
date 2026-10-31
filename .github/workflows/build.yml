@@ -7,9 +7,6 @@ on:
       - main
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 jobs:
   build:
     name: Build Nintendo Switch Homebrew
@@ -22,29 +19,31 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Instalar dependências
+        run: |
+          pacman -Sy --noconfirm
+          pacman -S --needed --noconfirm switch-dev
+
       - name: Verificar ambiente
         run: |
           echo "DEVKITPRO=$DEVKITPRO"
-          test -f "$DEVKITPRO/libnx/switch_rules"
-          ls -la
-          ls -la source
-
-      - name: Diagnosticar Makefile
-        run: |
-          make -pn | head -n 100
+          test -x "$DEVKITPRO/devkitA64/bin/aarch64-none-elf-g++"
+          test -f "$DEVKITPRO/libnx/include/switch.h"
+          "$DEVKITPRO/devkitA64/bin/aarch64-none-elf-g++" --version
 
       - name: Compilar aplicativo
         run: |
+          make clean
           make -j2
 
       - name: Verificar NRO
         run: |
-          test -f switchps5lite.nro
-          ls -lh switchps5lite.nro
+          test -f PS5-Lite-Switch.nro
+          ls -lh PS5-Lite-Switch.nro
 
       - name: Publicar NRO
         uses: actions/upload-artifact@v4
         with:
-          name: PS5-Lite-Switch-NRO
-          path: switchps5lite.nro
+          name: PS5-Lite-Switch
+          path: PS5-Lite-Switch.nro
           if-no-files-found: error
