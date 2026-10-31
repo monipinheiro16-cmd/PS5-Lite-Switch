@@ -19,25 +19,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Instalar dependências
-        run: |
-          pacman -Sy --noconfirm
-          pacman -S --needed --noconfirm switch-dev
-
-      - name: Verificar ambiente
+      - name: Verificar ferramentas
+        shell: bash
         run: |
           echo "DEVKITPRO=$DEVKITPRO"
-          test -x "$DEVKITPRO/devkitA64/bin/aarch64-none-elf-g++"
-          test -f "$DEVKITPRO/libnx/include/switch.h"
-          "$DEVKITPRO/devkitA64/bin/aarch64-none-elf-g++" --version
+          command -v aarch64-none-elf-g++
+          aarch64-none-elf-g++ --version
+
+          find "$DEVKITPRO" -name switch.h -print
 
       - name: Compilar aplicativo
+        shell: bash
         run: |
           make clean
           make -j2
 
       - name: Verificar NRO
+        shell: bash
         run: |
+          find . -name "*.nro" -type f
           test -f PS5-Lite-Switch.nro
           ls -lh PS5-Lite-Switch.nro
 
