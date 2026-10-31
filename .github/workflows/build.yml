@@ -1,4 +1,3 @@
-
 name: Build PS5 Lite Switch
 
 on:
@@ -15,6 +14,10 @@ jobs:
     container:
       image: devkitpro/devkita64:latest
 
+    env:
+      DEVKITPRO: /opt/devkitpro
+      DEVKITA64: /opt/devkitpro/devkitA64
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,14 +26,15 @@ jobs:
         shell: bash
         run: |
           echo "DEVKITPRO=$DEVKITPRO"
-          command -v aarch64-none-elf-g++
-          aarch64-none-elf-g++ --version
-
-          find "$DEVKITPRO" -name switch.h -print
+          export PATH="$DEVKITPRO/devkitA64/bin:$DEVKITPRO/tools/bin:$PATH"
+          "$DEVKITPRO/devkitA64/bin/aarch64-none-elf-g++" --version
+          find "$DEVKITPRO/libnx" -name switch.h -print
+          ls -l "$DEVKITPRO/tools/bin/elf2nro"
 
       - name: Compilar aplicativo
         shell: bash
         run: |
+          export PATH="$DEVKITPRO/devkitA64/bin:$DEVKITPRO/tools/bin:$PATH"
           make clean
           make -j2
 
